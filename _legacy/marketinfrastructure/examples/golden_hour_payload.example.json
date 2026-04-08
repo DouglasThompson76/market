@@ -1,0 +1,18 @@
+[
+  {
+    "symbol": "NVDA",
+    "trade_date": "2026-03-25",
+    "opening_range_high": 917.42,
+    "trigger_time_et": "10:17:00",
+    "trigger_bar_close": 919.05,
+    "trigger_bar_volume": 1724330,
+    "opening_range_avg_bar_volume": 998210,
+    "session_vwap_at_trigger": 915.66,
+    "relative_strength_vs_spy": 1.42,
+    "passed_time_cutoff": true,
+    "passed_orb_close": true,
+    "passed_volume_confirmation": true,
+    "passed_vwap_filter": true
+  }
+]
+

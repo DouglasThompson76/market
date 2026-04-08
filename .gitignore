@@ -1,0 +1,24 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+_test_tmp/
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+.env
+.env.*
+
+# Large local market artifacts are required at runtime but should not be
+# committed to the lightweight code repository by default.
+MarketSnapshot_output.csv
+snapshot/*.csv
+edge/*.csv
+model/*.pt

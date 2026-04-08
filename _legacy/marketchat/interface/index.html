@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketChat | GNN Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0b10;
+            color: #d1d5db;
+        }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        .glass {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .chat-scroll::-webkit-scrollbar { width: 5px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        .accent-blue { color: #3b82f6; }
+        .accent-green { color: #10b981; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="h-16 glass border-b flex items-center justify-between px-8 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">M</div>
+            <h1 class="text-xl font-bold tracking-tight text-white">Market<span class="text-blue-500">Chat</span></h1>
+        </div>
+        <div class="flex items-center space-x-6 text-sm">
+            <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-gray-400">GNN Engine Online</span>
+            </div>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-xs font-semibold transition" onclick="clearChat()">New Session</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden p-6 gap-6">
+        
+        <!-- Chat Panel (Left) -->
+        <section class="w-1/3 flex flex-col gap-4">
+            <div id="chat-messages" class="flex-1 glass rounded-2xl p-6 overflow-y-auto chat-scroll flex flex-col gap-6">
+                <!-- System Welcome -->
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center text-blue-400 border border-blue-500/30">AI</div>
+                    <div class="flex-1">
+                        <p class="text-sm bg-gray-800/40 p-3 rounded-2xl rounded-tl-none border border-gray-700/50">
+                            Welcome to <strong>MarketChat</strong>. I am the interface to your GNN Knowledge Graph.<br><br>
+                            Try asking:<br>
+                            - <span class="text-blue-400">"Tell me about $HAL"</span><br>
+                            - <span class="text-blue-400">"Simulate Energy +15%"</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass rounded-2xl p-3 flex items-center gap-3">
+                <input id="chat-input" type="text" placeholder="Message the GNN analyst..." 
+                       class="flex-1 bg-transparent border-none focus:ring-0 text-sm px-4 py-2"
+                       onkeydown="if(event.key==='Enter') sendMessage()" autocomplete="off">
+                <button onclick="sendMessage()" class="p-2 bg-blue-600 hover:bg-blue-500 rounded-xl transition">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- Artifacts Panel (Right) -->
+        <section class="flex-1 flex flex-col gap-4">
+            <div class="flex items-center justify-between px-2">
+                <h3 class="text-sm font-semibold uppercase tracking-widest text-gray-400">Graph Artifacts</h3>
+                <div class="text-[10px] text-gray-500 bg-gray-800/50 px-2 py-0.5 rounded border border-gray-700">VERSION 1.0</div>
+            </div>
+            
+            <div id="artifact-content" class="flex-1 glass rounded-3xl p-8 overflow-y-auto chat-scroll flex items-center justify-center text-center">
+                <div class="animate-float">
+                    <div class="w-20 h-20 mx-auto bg-gray-800 rounded-2xl border border-gray-700 flex items-center justify-center mb-4">
+                        <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.172-1.172a4 4 0 115.656 5.656L15 14.586V17a2 2 0 002 2h2.828l1.172-1.172"></path></svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-500 mb-2">No Active Artifact</h2>
+                    <p class="text-sm text-gray-600 max-w-xs mx-auto">Query the AI to see simulations, sector heatmaps, and relationship graphs here.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const artifactContent = document.getElementById('artifact-content');
+        const chatInput = document.getElementById('chat-input');
+
+        async function sendMessage() {
+            const query = chatInput.value.trim();
+            if (!query) return;
+            
+            chatInput.value = '';
+            addChatMessage('user', query);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8001/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: query})
+                });
+                const data = await response.json();
+                handleAIResponse(data);
+            } catch (err) {
+                addChatMessage('error', 'Failed to connect to MarketChat API.');
+            }
+        }
+
+        function handleAIResponse(data) {
+            if (data.type === 'error') {
+                addChatMessage('ai', data.message);
+                return;
+            }
+
+            if (data.type === 'simulation_result') {
+                artifactContent.innerHTML = renderSimulationArtifact(data);
+                addChatMessage('ai', `Analysis complete for <strong>${data.entity}</strong>. Check the result panel.`);
+            } else if (data.type === 'symbol_report') {
+                artifactContent.innerHTML = renderSymbolArtifact(data);
+                addChatMessage('ai', `Here is the current GNN intelligence for ${data.symbol}.`);
+            } else {
+                addChatMessage('ai', JSON.stringify(data));
+            }
+        }
+
+        function addChatMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = 'flex gap-3 ' + (role === 'user' ? 'justify-end' : '');
+            
+            const content = `
+                ${role !== 'user' ? '<div class="w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center text-blue-400 border border-blue-500/30">AI</div>' : ''}
+                <div class="max-w-[85%]">
+                    <p class="text-sm ${role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-gray-800/40 rounded-tl-none border border-gray-700/50'} p-3 rounded-2xl">
+                        ${text}
+                    </p>
+                </div>
+            `;
+            div.innerHTML = content;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function renderSimulationArtifact(data) {
+            let rows = data.results.map(r => `
+                <tr class="border-b border-gray-800/50 text-xs">
+                    <td class="py-3 font-semibold text-white">${r.ticker}</td>
+                    <td class="py-3">${r.gnn_prob.toFixed(3)}</td>
+                    <td class="py-3 font-bold ${r.delta > 0 ? 'text-green-400' : 'text-red-400'}">${(r.delta > 0 ? '+' : '') + r.delta.toFixed(3)}</td>
+                    <td class="py-3 text-gray-500">${r.selected_category}</td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="w-full text-left">
+                    <div class="mb-8">
+                        <span class="text-xs font-bold text-blue-500 uppercase tracking-widest">Macro Simulation Result</span>
+                        <h2 class="text-3xl font-bold text-white mt-2">${data.entity} <span class="accent-green">${(data.value > 0 ? '+' : '') + (data.value * 100)}%</span></h2>
+                        <p class="text-sm text-gray-500 mt-2">Propagating shock across 9 relationship types...</p>
+                    </div>
+                    <div class="overflow-hidden rounded-2xl border border-gray-800">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-800/40 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                                <tr><th class="px-3 py-3">Ticker</th><th class="py-3">Base Pr.</th><th class="py-3">Delta</th><th class="py-3">Category</th></tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSymbolArtifact(data) {
+            const ctx = data.context;
+            const net = data.influence_network;
+            
+            let netRows = net.map(n => `
+                <div class="flex items-center justify-between text-xs py-2 border-b border-gray-800/30">
+                    <span class="text-gray-400 text-blue-400">${n.dst_symbol || n.dst_name}</span>
+                    <span class="text-gray-600">${n.relation_code}</span>
+                    <span class="font-bold text-white">${n.weight.toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="w-full text-left h-full flex flex-col">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <span class="text-xs font-bold text-green-500 uppercase tracking-widest">Symbol Intelligence Report</span>
+                            <h2 class="text-4xl font-bold text-white mt-1">${data.symbol}</h2>
+                            <p class="text-blue-400 text-sm font-semibold">${ctx.ref_industry || 'Unknown Sector'}</p>
+                        </div>
+                        <div class="bg-blue-600 px-4 py-2 rounded-2xl text-center">
+                            <div class="text-[10px] text-blue-200 uppercase font-bold">GNN PROB</div>
+                            <div class="text-2xl font-bold text-white">${ctx.gnn_prob.toFixed(3)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-6 flex-1">
+                        <div class="glass p-5 rounded-2xl border border-gray-700/50">
+                            <h4 class="text-xs font-bold text-gray-500 mb-4 uppercase">Top Influencers</h4>
+                            <div class="space-y-3">
+                                <div><div class="text-[10px] text-gray-500 font-bold">PRIMARY</div> <div class="text-white font-semibold">${ctx.top_influencer_1 || 'None'}</div></div>
+                                <div><div class="text-[10px] text-gray-500 font-bold">SECONDARY</div> <div class="text-white font-semibold">${ctx.top_influencer_2 || 'None'}</div></div>
+                            </div>
+                        </div>
+                        <div class="glass p-5 rounded-2xl border border-gray-700/50 flex flex-col">
+                            <h4 class="text-xs font-bold text-gray-500 mb-1 uppercase">Local Network</h4>
+                            <div class="flex-1 overflow-y-auto chat-scroll pr-2">
+                                ${netRows || '<p class="text-gray-600 text-xs mt-4">No edges found in local graph.</p>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearChat() { chatMessages.innerHTML = ''; }
+    </script>
+</body>
+</html>

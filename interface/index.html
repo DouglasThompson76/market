@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GNN Market Intelligence Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #08090d; color: #d1d5db; }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; }
+        .glass { background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .sidebar { width: 260px; background: rgba(15, 17, 26, 0.95); border-right: 1px solid rgba(255, 255, 255, 0.05); }
+        .nav-item { transition: all 0.2s ease; cursor: pointer; }
+        .nav-item:hover { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .nav-item.active { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border-left: 3px solid #3b82f6; }
+        .chat-scroll::-webkit-scrollbar { width: 4px; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="sidebar flex flex-col h-full z-50">
+        <div class="p-8">
+            <h1 class="text-2xl font-bold tracking-tight text-white">GNN<span class="text-blue-500">Suite</span> <span class="text-[10px] text-gray-700 font-mono">v1.1</span></h1>
+            <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-2">Alpha Discovery Engine</p>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2">
+            <div onclick="switchView('watchlist')" id="nav-watchlist" class="nav-item active flex items-center px-4 py-3 rounded-xl text-sm font-semibold">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                Watchlist
+            </div>
+            <div onclick="switchView('intelligence')" id="nav-intelligence" class="nav-item flex items-center px-4 py-3 rounded-xl text-sm font-semibold">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                Intelligence (Chat)
+            </div>
+            <div class="nav-item flex items-center px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 cursor-not-allowed">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a2 2 0 00-1.96 1.414l-.727 2.903a2 2 0 01-3.156.082l-1.457-1.456a2 2 0 00-2.233-.494l-2.656.885a2 2 0 01-2.484-1.127l-0.781-2.122a2 2 0 00-2.022-1.226l-2.427.404a2 2 0 01-2.021-2.427l.404-2.427a2 2 0 00-1.226-2.022l-2.122-0.781a2 2 0 01-1.127-2.484l.885-2.656a2 2 0 00-0.494-2.233L1.456 1.456a2 2 0 01.082-3.156l2.903-.727a2 2 0 001.414-1.96l.477-2.387a2 2 0 00-.547-1.022L1.428 1.428"></path></svg>
+                AutoResearch
+                <span class="ml-auto text-[8px] bg-gray-800 px-1 py-0.5 rounded">SOON</span>
+            </div>
+            <div class="nav-item flex items-center px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 cursor-not-allowed">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m3 6V7m3 10v-3m2 8H7a2 2 0 01-2-2V4a2 2 0 012-2h10a2 2 0 012 2v16a2 2 0 01-2 2z"></path></svg>
+                Snapshot EDA
+                <span class="ml-auto text-[8px] bg-gray-800 px-1 py-0.5 rounded">SOON</span>
+            </div>
+            <div class="nav-item flex items-center px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 cursor-not-allowed">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 8h8m-8 4h5m-7 8h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Market Patterns
+                <span class="ml-auto text-[8px] bg-gray-800 px-1 py-0.5 rounded">SOON</span>
+            </div>
+        </nav>
+
+        <div class="p-6">
+            <div class="glass rounded-2xl p-4 text-[10px]">
+                <div class="flex items-center mb-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    <span class="font-bold text-gray-400">GNN ANALYTICS LIVE</span>
+                </div>
+                <p class="text-gray-600">Model: GNN-Inference-V1</p>
+                <p class="text-gray-600">Snapshot: 2026-04-07</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1 flex flex-col p-8 overflow-hidden relative">
+        
+        <!-- Background Glow -->
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full -z-10"></div>
+        <div class="absolute bottom-0 left-0 w-[300px] h-[300px] bg-green-600/5 blur-[120px] rounded-full -z-10"></div>
+
+        <!-- Watchlist View -->
+        <section id="view-watchlist" class="flex-1 flex flex-col gap-6 overflow-hidden">
+            <div class="flex justify-between items-end">
+                <div>
+                    <h2 class="text-4xl font-bold text-white tracking-tight">Watchlist</h2>
+                    <p class="text-gray-400 mt-2">Daily edge candidates ranked by structure, validator profile, and forward expectancy.</p>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="exportWatchlist()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-6 py-2.5 rounded-2xl text-sm font-semibold border border-gray-700 transition flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Export CSV
+                    </button>
+                    <button onclick="loadWatchlist()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-2xl text-sm font-semibold transition shadow-lg shadow-blue-900/20">Refresh Analysis</button>
+                </div>
+            </div>
+            
+            <div id="watchlist-detail-content" class="glass rounded-3xl p-6 bg-gray-950/20 overflow-y-auto chat-scroll max-h-[40vh]">
+                <div class="text-center text-gray-600 py-8">
+                    <p class="text-sm font-semibold">No Candidate Selected</p>
+                    <p class="text-xs mt-2">Choose a row to inspect the validator checks, expectancy profile, and structural pattern.</p>
+                </div>
+            </div>
+
+            <div class="flex-1 glass rounded-3xl overflow-hidden flex flex-col min-h-0">
+                <table class="w-full text-left flex-shrink-0">
+                    <thead class="bg-gray-800/40 text-[10px] text-gray-500 font-bold uppercase tracking-widest border-b border-gray-800">
+                        <tr>
+                            <th class="px-6 py-5 cursor-pointer hover:text-white transition" data-sort="ticker" onclick="handleSort('ticker')">Symbol <span class="sort-arrow">↕</span></th>
+                            <th class="py-5 cursor-pointer hover:text-white transition" data-sort="setup_score" onclick="handleSort('setup_score')">Setup <span class="sort-arrow">↓</span></th>
+                            <th class="py-5 cursor-pointer hover:text-white transition" data-sort="pattern_score" onclick="handleSort('pattern_score')">Pattern <span class="sort-arrow">↕</span></th>
+                            <th class="py-5 cursor-pointer hover:text-white transition" data-sort="validator_profile" onclick="handleSort('validator_profile')">Validator <span class="sort-arrow">↕</span></th>
+                            <th class="py-5 cursor-pointer hover:text-white transition" data-sort="expectancy_5d" onclick="handleSort('expectancy_5d')">5d Exp <span class="sort-arrow">↕</span></th>
+                            <th class="py-5 cursor-pointer hover:text-white transition" data-sort="target_entry_price" onclick="handleSort('target_entry_price')">Entry <span class="sort-arrow">↕</span></th>
+                            <th class="py-5 cursor-pointer hover:text-white transition" data-sort="take_profit_price" onclick="handleSort('take_profit_price')">Take Profit <span class="sort-arrow">↕</span></th>
+                            <th class="py-5 cursor-pointer hover:text-white transition" data-sort="stop_loss_price" onclick="handleSort('stop_loss_price')">Stop Loss <span class="sort-arrow">↕</span></th>
+                            <th class="py-5 cursor-pointer hover:text-white transition" data-sort="expectancy_sample_size" onclick="handleSort('expectancy_sample_size')">Samples <span class="sort-arrow">↕</span></th>
+                            <th class="px-6 py-5 cursor-pointer hover:text-white transition" data-sort="trading_action" onclick="handleSort('trading_action')">Action <span class="sort-arrow">↕</span></th>
+                        </tr>
+                        <tr class="bg-gray-900/40">
+                            <th class="px-6 py-2"><input type="text" placeholder="Symbol..." class="bg-gray-800/50 border border-gray-700/50 rounded px-2 py-1 w-full text-[10px] focus:ring-1 focus:ring-blue-500 outline-none" oninput="handleFilter('ticker', this.value)"></th>
+                            <th class="py-2"></th>
+                            <th class="py-2"><input type="text" placeholder="Family..." class="bg-gray-800/50 border border-gray-700/50 rounded px-2 py-1 w-full text-[10px] focus:ring-1 focus:ring-blue-500 outline-none" oninput="handleFilter('pattern_family', this.value)"></th>
+                            <th class="py-2"><input type="text" placeholder="Profile..." class="bg-gray-800/50 border border-gray-700/50 rounded px-2 py-1 w-full text-[10px] focus:ring-1 focus:ring-blue-500 outline-none" oninput="handleFilter('validator_profile', this.value)"></th>
+                            <th class="py-2"></th>
+                            <th class="py-2"></th>
+                            <th class="py-2"></th>
+                            <th class="py-2"></th>
+                            <th class="py-2"></th>
+                            <th class="px-6 py-2"><input type="text" placeholder="Action..." class="bg-gray-800/50 border border-gray-700/50 rounded px-2 py-1 w-full text-[10px] focus:ring-1 focus:ring-blue-500 outline-none" oninput="handleFilter('trading_action', this.value)"></th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="flex-1 overflow-y-auto chat-scroll min-h-0">
+                    <table class="w-full text-left">
+                        <tbody id="watchlist-body" class="text-sm divide-y divide-gray-800/50">
+                            <!-- Loaded through API -->
+                        </tbody>
+                    </table>
+                    <div id="watchlist-loader" class="h-full flex items-center justify-center text-gray-500 animate-pulse text-sm">Initializing Daily Edge Scan...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Intelligence View (Hidden by default) -->
+        <section id="view-intelligence" class="hidden flex-1 flex flex-col gap-6 overflow-hidden">
+            <h2 class="text-4xl font-bold text-white tracking-tight">GNN Intelligence</h2>
+            
+            <div class="flex-1 flex gap-6 overflow-hidden">
+                <!-- Chat Window -->
+                <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+                    <div id="chat-messages" class="flex-1 glass rounded-3xl p-6 overflow-y-auto chat-scroll flex flex-col gap-4">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center text-blue-400 border border-blue-500/30">AI</div>
+                            <div class="max-w-[85%]">
+                                <p class="text-sm bg-gray-800/40 p-3 rounded-2xl rounded-tl-none border border-gray-700/50">
+                                    I am ready to traverse the **GNN Knowledge Graph**. Ask me about a symbol or simulate a macro shock.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-2xl p-3 flex gap-3">
+                        <input id="chat-input" type="text" placeholder="Message GNN Insight..." class="flex-1 bg-transparent border-none focus:ring-0 text-sm px-4 py-2" onkeydown="if(event.key==='Enter') sendMessage()" autocomplete="off">
+                        <button onclick="sendMessage()" class="p-2 bg-blue-600 hover:bg-blue-500 rounded-xl transition">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Detail Panel -->
+                <div class="w-2/5 glass rounded-3xl p-8 flex flex-col overflow-hidden">
+                    <div id="detail-content" class="flex-1 flex flex-col items-center justify-center text-center text-gray-600">
+                        <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-sm font-semibold">No Symbol Selected</p>
+                        <p class="text-xs px-12 mt-2">Query a symbol to see its influence network and GNN metrics here.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const views = ['watchlist', 'intelligence'];
+        const apiBase = '/api';
+        
+        // --- State ---
+        let watchlistData = [];
+        let selectedCandidateTicker = null;
+        let sortConfig = { key: 'setup_score', direction: 'desc' };
+        let filters = { ticker: '', pattern_family: '', validator_profile: '', trading_action: '' };
+
+        function switchView(viewName) {
+            views.forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                document.getElementById(`nav-${v}`).classList.remove('active');
+            });
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            document.getElementById(`nav-${viewName}`).classList.add('active');
+            
+            if (viewName === 'watchlist') loadWatchlist();
+        }
+
+        // --- Watchlist Logic ---
+        function normalizeCandidate(item) {
+            return {
+                ...item,
+                pattern_family: item.pattern_context?.family || 'Unknown',
+                pattern_score: item.pattern_context?.score ?? -1,
+                validator_profile: item.validator_context?.validator_profile || 'FAILED',
+                validator_status: item.validator_context?.aggregate_status || 'FAIL',
+                validator_score: item.validator_context?.aggregate_score ?? 0,
+                expectancy_5d: item.expectancy_context?.horizons?.['5d']?.avg_end_return_pct ?? null,
+                expectancy_sample_size: item.expectancy_context?.sample_size ?? 0,
+                target_entry_price: item.trade_plan_context?.target_entry_price ?? null,
+                take_profit_price: item.trade_plan_context?.take_profit_price ?? null,
+                stop_loss_price: item.trade_plan_context?.stop_loss_price ?? null,
+                entry_mode: item.trade_plan_context?.entry_mode || 'PULLBACK'
+            };
+        }
+
+        function valueForKey(item, key) {
+            const value = item[key];
+            return value === undefined || value === null ? '' : value;
+        }
+
+        function formatPercent(value, digits = 2) {
+            if (value === null || value === undefined || Number.isNaN(Number(value))) return 'n/a';
+            return `${Number(value).toFixed(digits)}%`;
+        }
+
+        function formatRatio(value, digits = 2) {
+            if (value === null || value === undefined || Number.isNaN(Number(value))) return 'n/a';
+            return `${Number(value).toFixed(digits)}x`;
+        }
+
+        function formatNumber(value, digits = 2) {
+            if (value === null || value === undefined || Number.isNaN(Number(value))) return 'n/a';
+            return Number(value).toFixed(digits);
+        }
+
+        function formatPrice(value) {
+            if (value === null || value === undefined || Number.isNaN(Number(value))) return 'n/a';
+            return `$${Number(value).toFixed(2)}`;
+        }
+
+        function filteredWatchlist() {
+            return watchlistData.filter(item => {
+                return Object.keys(filters).every(key => {
+                    if (!filters[key]) return true;
+                    const val = String(valueForKey(item, key)).toLowerCase();
+                    return val.includes(filters[key].toLowerCase());
+                });
+            });
+        }
+
+        async function loadWatchlist() {
+            const loader = document.getElementById('watchlist-loader');
+            loader.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${apiBase}/candidates`);
+                const payload = await response.json();
+                watchlistData = payload.map(normalizeCandidate);
+                loader.classList.add('hidden');
+                applyAndRender();
+            } catch (err) {
+                console.error(err);
+                loader.innerText = "Connection Failed.";
+            }
+        }
+
+        function applyAndRender() {
+            let filtered = filteredWatchlist();
+
+            if (sortConfig.key) {
+                filtered.sort((a, b) => {
+                    let aVal = valueForKey(a, sortConfig.key);
+                    let bVal = valueForKey(b, sortConfig.key);
+                    if (typeof aVal === 'string') {
+                        return sortConfig.direction === 'asc' 
+                            ? aVal.localeCompare(bVal) 
+                            : bVal.localeCompare(aVal);
+                    }
+                    return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+                });
+            }
+
+            renderWatchlist(filtered);
+
+            if (!filtered.length) {
+                selectedCandidateTicker = null;
+                renderWatchlistDetail(null);
+                return;
+            }
+
+            const stillExists = filtered.some(item => item.ticker === selectedCandidateTicker);
+            if (!stillExists) {
+                selectedCandidateTicker = filtered[0].ticker;
+            }
+            renderWatchlistDetail(filtered.find(item => item.ticker === selectedCandidateTicker) || filtered[0]);
+        }
+
+        function renderWatchlist(data) {
+            const body = document.getElementById('watchlist-body');
+            body.innerHTML = '';
+            
+            data.forEach(c => {
+                const selectedClass = c.ticker === selectedCandidateTicker ? 'bg-blue-500/10' : '';
+                const validatorTone = c.validator_status === 'PASS'
+                    ? 'text-green-400 border-green-500/20 bg-green-500/5'
+                    : c.validator_status === 'WATCH'
+                    ? 'text-amber-400 border-amber-500/20 bg-amber-500/5'
+                    : 'text-red-400 border-red-500/20 bg-red-500/5';
+                const expectancyTone = c.expectancy_5d !== null && c.expectancy_5d >= 0 ? 'text-green-400' : 'text-red-400';
+                const row = `
+                    <tr class="hover:bg-gray-800/10 transition cursor-pointer ${selectedClass}" onclick="selectCandidate('${c.ticker}')">
+                        <td class="px-6 py-5">
+                            <div class="text-lg font-bold text-white">${c.ticker}</div>
+                            <div class="text-[10px] uppercase tracking-widest text-gray-500">${c.setup_status.replaceAll('_', ' ')}</div>
+                        </td>
+                        <td class="py-5 font-mono text-blue-400">${formatNumber(c.setup_score, 1)}</td>
+                        <td class="py-5">
+                            <div class="text-white font-semibold">${c.pattern_family}</div>
+                            <div class="text-[10px] text-gray-500 uppercase tracking-widest">score ${formatNumber(c.pattern_score, 1)}</div>
+                        </td>
+                        <td class="py-5">
+                            <span class="px-3 py-1 rounded-xl text-[10px] font-bold uppercase tracking-widest border ${validatorTone}">${c.validator_profile}</span>
+                        </td>
+                        <td class="py-5 font-semibold ${expectancyTone}">${formatPercent(c.expectancy_5d)}</td>
+                        <td class="py-5 text-gray-200 font-mono">${formatPrice(c.target_entry_price)}</td>
+                        <td class="py-5 text-green-400 font-mono">${formatPrice(c.take_profit_price)}</td>
+                        <td class="py-5 text-red-400 font-mono">${formatPrice(c.stop_loss_price)}</td>
+                        <td class="py-5 text-gray-400">${c.expectancy_sample_size}</td>
+                        <td class="px-6 py-5">
+                            <span class="px-3 py-1 bg-gray-800 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-400">${c.trading_action}</span>
+                        </td>
+                    </tr>
+                `;
+                body.innerHTML += row;
+            });
+        }
+
+        function selectCandidate(ticker) {
+            selectedCandidateTicker = ticker;
+            applyAndRender();
+        }
+
+        function renderCheck(name, check) {
+            const tone = check.status === 'PASS'
+                ? 'text-green-400 border-green-500/20 bg-green-500/5'
+                : 'text-red-400 border-red-500/20 bg-red-500/5';
+            return `
+                <div class="bg-gray-900/40 p-3 rounded-2xl border border-gray-800/50">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">${name}</span>
+                        <span class="px-2 py-1 rounded-xl border text-[9px] font-bold uppercase tracking-widest ${tone}">${check.status}</span>
+                    </div>
+                    <div class="text-xs text-gray-300 mt-2">${check.reason}</div>
+                </div>
+            `;
+        }
+
+        function renderWatchlistDetail(candidate) {
+            const detail = document.getElementById('watchlist-detail-content');
+            if (!candidate) {
+                detail.innerHTML = `
+                    <div class="text-center text-gray-600 py-8">
+                        <p class="text-sm font-semibold">No Candidate Selected</p>
+                        <p class="text-xs mt-2">Choose a row to inspect the validator checks, expectancy profile, and structural pattern.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const checks = candidate.validator_context?.checks || {};
+            const expectancy = candidate.expectancy_context?.horizons || {};
+            detail.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <div class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Daily Edge Detail</div>
+                            <h3 class="text-3xl font-bold text-white mt-1">${candidate.ticker}</h3>
+                            <p class="text-sm text-gray-400 mt-1">${candidate.company_name || candidate.selected_category || 'Structural Candidate'}</p>
+                        </div>
+                        <button onclick="deepResearch('${candidate.ticker}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-2xl text-xs font-semibold transition">Research</button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gray-900/40 p-3 rounded-2xl border border-gray-800/50">
+                            <div class="text-[9px] text-gray-500 uppercase tracking-widest">Setup Score</div>
+                            <div class="text-xl font-bold text-white mt-1">${formatNumber(candidate.setup_score, 1)}</div>
+                            <div class="text-[10px] text-gray-500 mt-1">${candidate.setup_status.replaceAll('_', ' ')}</div>
+                        </div>
+                        <div class="bg-gray-900/40 p-3 rounded-2xl border border-gray-800/50">
+                            <div class="text-[9px] text-gray-500 uppercase tracking-widest">5d Expectancy</div>
+                            <div class="text-xl font-bold ${candidate.expectancy_5d !== null && candidate.expectancy_5d >= 0 ? 'text-green-400' : 'text-red-400'} mt-1">${formatPercent(candidate.expectancy_5d)}</div>
+                            <div class="text-[10px] text-gray-500 mt-1">${candidate.expectancy_sample_size} samples</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-[10px] uppercase tracking-widest text-gray-500">Trade Plan</div>
+                                <div class="text-lg font-bold text-white mt-1">${candidate.entry_mode}</div>
+                            </div>
+                            <div class="text-right text-sm text-gray-400">
+                                <div>Entry ${formatPrice(candidate.target_entry_price)}</div>
+                                <div>TP ${formatPrice(candidate.take_profit_price)}</div>
+                                <div>SL ${formatPrice(candidate.stop_loss_price)}</div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-3">${candidate.trade_plan_context?.plan_reason || 'No trade plan rationale available.'}</p>
+                    </div>
+
+                    <div class="bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-[10px] uppercase tracking-widest text-gray-500">Pattern</div>
+                                <div class="text-lg font-bold text-white mt-1">${candidate.pattern_family}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[10px] uppercase tracking-widest text-gray-500">Confidence</div>
+                                <div class="text-sm font-bold text-blue-400 mt-1">${candidate.pattern_context?.confidence || 'LOW'}</div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-3">${candidate.pattern_context?.summary || 'No pattern summary available.'}</p>
+                    </div>
+
+                    <div>
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Validator Checks</div>
+                        <div class="space-y-3">
+                            ${renderCheck('Breakout Proxy', checks.breakout_proxy || { status: 'FAIL', reason: 'Unavailable' })}
+                            ${renderCheck('Above VWAP', checks.above_vwap || { status: 'FAIL', reason: 'Unavailable' })}
+                            ${renderCheck('Relative Volume', checks.relative_volume || { status: 'FAIL', reason: 'Unavailable' })}
+                            ${renderCheck('Relative Strength Price', checks.relative_strength_price || { status: 'FAIL', reason: 'Unavailable' })}
+                            ${renderCheck('Relative Strength RSI', checks.relative_strength_rsi || { status: 'FAIL', reason: 'Unavailable' })}
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Expectancy Breakdown</div>
+                            <div class="text-[10px] text-gray-500 uppercase tracking-widest">${candidate.expectancy_context?.fallback_level || 'global'} fallback</div>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span class="text-gray-500">2d avg / win</span><span class="text-white">${formatPercent(expectancy['2d']?.avg_end_return_pct)} / ${formatPercent((expectancy['2d']?.win_rate ?? null) !== null ? (expectancy['2d']?.win_rate ?? 0) * 100 : null, 1)}</span></div>
+                            <div class="flex justify-between"><span class="text-gray-500">5d avg / MFE / MAE</span><span class="text-white">${formatPercent(expectancy['5d']?.avg_end_return_pct)} / ${formatPercent(expectancy['5d']?.avg_mfe_pct)} / ${formatPercent(expectancy['5d']?.avg_mae_pct)}</span></div>
+                            <div class="flex justify-between"><span class="text-gray-500">10d avg / win</span><span class="text-white">${formatPercent(expectancy['10d']?.avg_end_return_pct)} / ${formatPercent((expectancy['10d']?.win_rate ?? null) !== null ? (expectancy['10d']?.win_rate ?? 0) * 100 : null, 1)}</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleSort(key) {
+            if (sortConfig.key === key) {
+                sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortConfig.key = key;
+                sortConfig.direction = 'desc';
+            }
+            updateSortUI();
+            applyAndRender();
+        }
+
+        function updateSortUI() {
+            document.querySelectorAll('th[data-sort]').forEach(th => {
+                const key = th.getAttribute('data-sort');
+                const arrow = th.querySelector('.sort-arrow');
+                if (key === sortConfig.key) {
+                    th.classList.add('text-blue-500');
+                    arrow.innerHTML = sortConfig.direction === 'asc' ? '↑' : '↓';
+                } else {
+                    th.classList.remove('text-blue-500');
+                    arrow.innerHTML = '↕';
+                }
+            });
+        }
+
+        function handleFilter(key, value) {
+            filters[key] = value;
+            applyAndRender();
+        }
+
+        function exportWatchlist() {
+            console.log("Exporting symbol, date, action for", watchlistData.length, "total rows.");
+            
+            // 1. Filter
+            let filtered = filteredWatchlist();
+
+            if (filtered.length === 0) {
+                alert("No matching candidates to export.");
+                return;
+            }
+
+            try {
+                // 2. Map to Symbol, Date, Action only
+                const headers = ["symbol", "date", "action"];
+                const csvRows = [headers.join(',')];
+
+                filtered.forEach(row => {
+                    const rowData = [
+                        row.ticker,
+                        row.date,
+                        row.trading_action
+                    ].map(val => {
+                        let v = String(val || '');
+                        if (v.includes(',') || v.includes('"') || v.includes('\n')) {
+                            v = '"' + v.replace(/"/g, '""') + '"';
+                        }
+                        return v;
+                    });
+                    csvRows.push(rowData.join(','));
+                });
+
+                // 3. Create Data URI with BOM for Excel
+                const csvString = '\uFEFF' + csvRows.join('\n');
+                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvString);
+                
+                // 4. Force Download via Data URI (avoids blob URL issues)
+                const link = document.createElement("a");
+                link.href = dataUri;
+                link.download = "gnn_watchlist_export.csv";
+                link.style.display = "none";
+                document.body.appendChild(link);
+                link.click();
+                
+                // Cleanup
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                }, 200);
+
+            } catch (err) {
+                console.error("Export Error:", err);
+                alert("Export failed: " + err.message);
+            }
+        }
+
+        function deepResearch(symbol) {
+            switchView('intelligence');
+            document.getElementById('chat-input').value = `Tell me about $${symbol}`;
+            sendMessage();
+        }
+
+        // --- Chat Logic ---
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            input.value = '';
+            addMessage('user', msg);
+
+            try {
+                const response = await fetch(`${apiBase}/chat`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: msg})
+                });
+                const data = await response.json();
+                handleAgentResponse(data);
+            } catch (err) { addMessage('ai', 'Error connecting to intelligence engine.'); }
+        }
+
+        function addMessage(role, text) {
+            const chat = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `flex gap-3 ${role === 'user' ? 'justify-end' : ''}`;
+            const bubble = `<div class="max-w-[85%]"><p class="text-sm p-3 rounded-2xl ${role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-gray-800/40 rounded-tl-none border border-gray-700/50'}">${text}</p></div>`;
+            div.innerHTML = (role === 'ai' ? '<div class="w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center text-blue-400 border border-blue-500/30">AI</div>' : '') + bubble;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function handleAgentResponse(data) {
+            const detail = document.getElementById('detail-content');
+            if (data.type === 'error') { addMessage('ai', data.message); return; }
+
+            if (data.type === 'symbol_report') {
+                addMessage('ai', `Analysis complete for ${data.symbol}. GNN Confidence: **${data.context.gnn_prob.toFixed(3)}**.`);
+                detail.innerHTML = renderSymbolReport(data);
+            } else if (data.type === 'simulation_result') {
+                addMessage('ai', `Simulation complete for **${data.entity}** with a delta of **${(data.value*100).toFixed(0)}%**. Check the result panel.`);
+                detail.innerHTML = renderSimulationResult(data);
+            }
+        }
+
+        function renderSymbolReport(data) {
+            const ctx = data.context;
+            const net = data.influence_network.map(n => `<div class="flex justify-between py-2 border-b border-gray-800/30 text-[11px]"><span class="text-blue-400 font-bold">${n.dst_symbol || n.dst_name}</span><span class="text-gray-500">${n.relation_code}</span><span class="text-white">${n.weight.toFixed(2)}</span></div>`).join('');
+            
+            // Technical indicators color coding
+            const rsiVal = parseFloat(ctx.rsi14);
+            const rsiClass = rsiVal > 70 ? 'text-red-400' : (rsiVal < 30 ? 'text-green-400' : 'text-white');
+            const volRatio = parseFloat(ctx.volume_ratio20);
+            const volClass = volRatio > 1.5 ? 'text-green-400 font-bold' : 'text-white';
+            const changeVal = parseFloat(ctx.todays_change_pct);
+            const changeClass = changeVal > 0 ? 'text-green-400' : 'text-red-400';
+
+            return `
+                <div class="w-full text-left overflow-y-auto pr-2 chat-scroll h-full">
+                    <span class="text-[10px] font-bold text-green-500 uppercase tracking-widest">GNN Intelligence Report</span>
+                    <h2 class="text-4xl font-bold text-white mt-1">${data.symbol}</h2>
+                    <p class="text-sm text-gray-400 mt-1 mb-6">${ctx.ref_industry || ctx.selected_category || 'Structural Setup'}</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <div class="bg-gray-800/40 p-3 rounded-2xl border border-gray-700/30"><div class="text-[9px] text-gray-500 mb-0.5">GNN PROB</div><div class="text-xl font-bold text-white">${ctx.gnn_prob.toFixed(3)}</div></div>
+                        <div class="bg-gray-800/40 p-3 rounded-2xl border border-gray-700/30"><div class="text-[9px] text-gray-500 mb-0.5">TRADING ACTION</div><div class="text-sm font-bold text-blue-500 uppercase tracking-tight">${ctx.trading_action || 'WATCH'}</div></div>
+                    </div>
+
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Trading Technicals</h4>
+                    <div class="grid grid-cols-3 gap-2 mb-8">
+                        <div class="bg-gray-900/60 p-2.5 rounded-xl border border-gray-800/50">
+                            <div class="text-[8px] text-gray-500 mb-0.5 uppercase">Momentum</div>
+                            <div class="text-xs font-bold ${rsiClass}">RSI: ${rsiVal.toFixed(1)}</div>
+                            <div class="text-[8px] text-gray-600 mt-0.5">Trend: ${parseFloat(ctx.trend_score).toFixed(1)}</div>
+                        </div>
+                        <div class="bg-gray-900/60 p-2.5 rounded-xl border border-gray-800/50">
+                            <div class="text-[8px] text-gray-500 mb-0.5 uppercase">Price Action</div>
+                            <div class="text-xs font-bold ${changeClass}">${changeVal.toFixed(2)}%</div>
+                            <div class="text-[8px] text-gray-600 mt-0.5">5d Ret: ${parseFloat(ctx.ret5).toFixed(2)}%</div>
+                        </div>
+                        <div class="bg-gray-900/60 p-2.5 rounded-xl border border-gray-800/50">
+                            <div class="text-[8px] text-gray-500 mb-0.5 uppercase">Volume Rel</div>
+                            <div class="text-xs font-bold ${volClass}">${volRatio.toFixed(2)}x</div>
+                            <div class="text-[8px] text-gray-600 mt-0.5">30d Avg: $${(parseFloat(ctx.avg_dollar_volume_30d)/1000000).toFixed(1)}M</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 mb-8 bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
+                        <div class="flex justify-between text-[11px]"><span class="text-gray-500">ATR(14) Volatility</span><span class="text-white">${parseFloat(ctx.atr14).toFixed(3)}</span></div>
+                        <div class="flex justify-between text-[11px]"><span class="text-gray-500">ADX Strength</span><span class="text-white">${parseFloat(ctx.adx14).toFixed(1)}</span></div>
+                        <div class="flex justify-between text-[11px]"><span class="text-gray-500">Risk Bucket</span><span class="text-blue-400 font-bold">${ctx.risk_bucket || 'MED'}</span></div>
+                    </div>
+                    
+                    <h4 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Graph Network (Direct Influence)</h4>
+                    <div class="space-y-1">${net}</div>
+                </div>
+            `;
+        }
+
+        function renderSimulationResult(data) {
+            const rows = data.results.map(r => `<tr class="border-b border-gray-800/30 text-xs"><td class="py-3 font-bold text-white">${r.ticker}</td><td class="py-3">${r.gnn_prob.toFixed(3)}</td><td class="py-3 font-bold ${r.delta > 0 ? 'text-green-400' : 'text-red-400'}">${(r.delta > 0 ? '+' : '') + r.delta.toFixed(3)}</td><td class="py-3 text-gray-600">${r.selected_category}</td></tr>`).join('');
+            
+            return `
+                <div class="w-full text-left">
+                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Macro Shock Result</span>
+                    <h2 class="text-4xl font-bold text-white mt-1">${data.entity}</h2>
+                    <p class="text-sm text-gray-500 mt-1 mb-8">Simulation delta: <span class="font-bold text-white">${(data.value*100).toFixed(0)}%</span></p>
+                    
+                    <div class="overflow-hidden rounded-2xl border border-gray-800">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-gray-800/40 text-[9px] text-gray-500 font-bold uppercase tracking-widest"><tr><th class="px-3 py-3">Ticker</th><th class="py-3">Base</th><th class="py-3">Δ</th><th class="py-3">Category</th></tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initial Load
+        loadWatchlist();
+    </script>
+</body>
+</html>
